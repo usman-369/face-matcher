@@ -14,20 +14,9 @@ Logs for TensorFlow and DeepFace:
 "2" = filter INFO + WARNING
 "3" = only show critical errors
 """
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "1"
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 logger = logging.getLogger("requests")
-
-SUPPORTED_MODELS = [
-    "ArcFace",
-    "Facenet512",
-    "DeepFace",
-    "Facenet",
-    "VGG-Face",
-    "Dlib",
-    "DeepID",
-    "OpenFace",
-]
 
 
 class FaceMatcher:
@@ -106,7 +95,7 @@ class FaceMatcher:
                 logger.error("[FaceMatcher] No face detected in selfie.")
                 return False
 
-            # # ===== OPTIONAL: Save extracted faces to the Desktop for debugging =====
+            # # ======= Save extracted faces to the Desktop for debugging =======
             # from pathlib import Path
             # from datetime import datetime
 
@@ -119,7 +108,7 @@ class FaceMatcher:
 
             # cv2.imwrite(str(cedula_path), cedula_face)
             # cv2.imwrite(str(selfie_path), selfie_face)
-            # # =======================================================================
+            # # =================================================================
 
             # Convert extracted faces to uint8 for OpenCV
             cedula_face = (cedula_faces[0]["face"] * 255).astype(np.uint8)
