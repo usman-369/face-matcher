@@ -1,0 +1,139 @@
+import cv2
+import logging
+import numpy as np
+from io import BytesIO
+from pathlib import Path
+from datetime import datetime
+
+
+__all__ = [
+    "ensure_bytesio",
+    "get_with_fallback",
+    "debug_save_extracted_faces",
+    "preprocess_image",
+    "get_largest_face",
+]
+
+
+def get_safe_logger(logger=None):
+    if logger:
+        return logger
+    null_logger = logging.getLogger("null_logger")
+    null_logger.addHandler(logging.NullHandler())
+    return null_logger
+
+
+def ensure_bytesio(file):
+    if isinstance(file, BytesIO):
+        file.seek(0)
+        return file
+    return BytesIO(file.read())
+
+
+def get_with_fallback(mapping, key, default_key, name, logger=None):
+    """
+    Retrieve a value from a mapping with fallback support.
+
+    If the requested key is missing, the fallback key is used (if available).
+    This method does not treat None values as invalid — only missing keys trigger fallback.
+
+    Args:
+        mapping (dict): The dictionary to look into.
+        key (str): The requested key.
+        default_key (str): The fallback key to use if the requested key is missing.
+        name (str): A label used in logs for clarity (e.g., "model key").
+
+    Returns:
+        any: The value from mapping[key], mapping[default_key], or None if both are missing.
+    """
+    logger = get_safe_logger(logger)
+
+    if key in mapping:
+        return mapping[key]
+    elif default_key in mapping:
+        logger.warning(f"Invalid {name} '{key}', falling back to '{default_key}'.")
+        return mapping[default_key]
+    else:
+        logger.error(f"Invalid {name} '{key}' and fallback '{default_key}' not found.")
+        return None
+
+
+def debug_save_extracted_faces(cedula_face_img, selfie_face_img, logger=None):
+    """
+    Save the extracted face images to the Desktop for debugging.
+
+    This runs only if `settings.DEBUG_FACE_MATCHER` is set to True.
+
+    Args:
+        cedula_face_img (np.ndarray): The extracted face from cédula image
+        selfie_face_img (np.ndarray): The extracted face from selfie image
+    """
+    logger = get_safe_logger(logger)
+    logger.info("Saving extracted faces to the Desktop for debugging.")
+
+    # Get path to current user's Desktop (Linux/Mac/Windows compatible)
+    desktop_path = Path.home() / "Desktop"
+    base_folder = desktop_path / "extracted_faces"
+    cedula_folder = base_folder / "from_cedula"
+    selfie_folder = base_folder / "from_selfie"
+    cedula_folder.mkdir(parents=True, exist_ok=True)
+    selfie_folder.mkdir(parents=True, exist_ok=True)
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    cedula_path = cedula_folder / f"cedula_face_{timestamp}.jpg"
+    selfie_path = selfie_folder / f"selfie_face_{timestamp}.jpg"
+
+    cv2.imwrite(str(cedula_path), cv2.cvtColor(cedula_face_img, cv2.COLOR_RGB2BGR))
+    cv2.imwrite(str(selfie_path), cv2.cvtColor(selfie_face_img, cv2.COLOR_RGB2BGR))
+
+
+def preprocess_image(img, label="unknown", normalize_brightness=False, logger=None):
+    """
+    Preprocess an image by normalizing brightness, ensuring data type, and converting to RGB if needed.
+
+    Args:
+        img (np.ndarray): Input image
+        label (str): A label used in logs (e.g., "selfie", "cédula")
+        normalize_brightness (bool): Whether to auto-adjust brightness if needed
+
+    Returns:
+        np.ndarray: The preprocessed image
+    """
+    logger = get_safe_logger(logger)
+
+    # 1. Normalize brightness (if needed)
+    if normalize_brightness:
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        brightness = np.mean(gray)
+
+        if brightness < 50 or brightness > 240:
+            logger.warning(f"{label.capitalize()} image has extreme brightness! Avg={brightness:.2f}")
+
+        if brightness < 100:
+            img = cv2.convertScaleAbs(img, alpha=1.2, beta=20)
+            logger.info(f"Brightened {label} image (avg={brightness:.2f})")
+        elif brightness > 200:
+            img = cv2.convertScaleAbs(img, alpha=0.9, beta=-30)
+            logger.info(f"Darkened {label} image (avg={brightness:.2f})")
+        else:
+            logger.info(f"Skipped brightness normalization for {label} (avg={brightness:.2f})")
+
+    # 2. Normalize data range if float image
+    if img.max() <= 1.0:
+        img = img * 255
+
+    # 3. Ensure uint8
+    img = img.astype(np.uint8)
+
+    # 4. Fix grayscale image (2D or single-channel)
+    if len(img.shape) == 2:  # shape = (H, W)
+        img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
+    elif img.shape[2] == 1:  # shape = (H, W, 1)
+        img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
+
+    return img
+
+
+def get_largest_face(faces):
+    return max(faces, key=lambda f: f["facial_area"]["w"] * f["facial_area"]["h"]) if faces else None
