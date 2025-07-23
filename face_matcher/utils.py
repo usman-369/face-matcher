@@ -58,14 +58,14 @@ def get_with_fallback(mapping, key, default_key, name, logger=None):
         return None
 
 
-def debug_save_extracted_faces(cedula_face_img, selfie_face_img, logger=None):
+def debug_save_extracted_faces(id_card_face_img, selfie_face_img, logger=None):
     """
     Save the extracted face images to the Desktop for debugging.
 
     This runs only if `settings.DEBUG_FACE_MATCHER` is set to True.
 
     Args:
-        cedula_face_img (np.ndarray): The extracted face from cédula image
+        id_card_face_img (np.ndarray): The extracted face from ID card image
         selfie_face_img (np.ndarray): The extracted face from selfie image
     """
     logger = get_safe_logger(logger)
@@ -74,17 +74,17 @@ def debug_save_extracted_faces(cedula_face_img, selfie_face_img, logger=None):
     # Get path to current user's Desktop (Linux/Mac/Windows compatible)
     desktop_path = Path.home() / "Desktop"
     base_folder = desktop_path / "extracted_faces"
-    cedula_folder = base_folder / "from_cedula"
+    id_card_folder = base_folder / "from_id_card"
     selfie_folder = base_folder / "from_selfie"
-    cedula_folder.mkdir(parents=True, exist_ok=True)
+    id_card_folder.mkdir(parents=True, exist_ok=True)
     selfie_folder.mkdir(parents=True, exist_ok=True)
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-    cedula_path = cedula_folder / f"cedula_face_{timestamp}.jpg"
+    id_card_path = id_card_folder / f"id_card_face_{timestamp}.jpg"
     selfie_path = selfie_folder / f"selfie_face_{timestamp}.jpg"
 
-    cv2.imwrite(str(cedula_path), cv2.cvtColor(cedula_face_img, cv2.COLOR_RGB2BGR))
+    cv2.imwrite(str(id_card_path), cv2.cvtColor(id_card_face_img, cv2.COLOR_RGB2BGR))
     cv2.imwrite(str(selfie_path), cv2.cvtColor(selfie_face_img, cv2.COLOR_RGB2BGR))
 
 
@@ -94,7 +94,7 @@ def preprocess_image(img, label="unknown", normalize_brightness=False, logger=No
 
     Args:
         img (np.ndarray): Input image
-        label (str): A label used in logs (e.g., "selfie", "cédula")
+        label (str): A label used in logs (e.g., "id_card", "selfie")
         normalize_brightness (bool): Whether to auto-adjust brightness if needed
 
     Returns:
