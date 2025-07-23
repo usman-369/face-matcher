@@ -108,7 +108,9 @@ def preprocess_image(img, label="unknown", normalize_brightness=False, logger=No
         brightness = np.mean(gray)
 
         if brightness < 50 or brightness > 240:
-            logger.warning(f"{label.capitalize()} image has extreme brightness! Avg={brightness:.2f}")
+            logger.warning(
+                f"{label.capitalize()} image has extreme brightness! Avg={brightness:.2f}"
+            )
 
         if brightness < 100:
             img = cv2.convertScaleAbs(img, alpha=1.2, beta=20)
@@ -117,7 +119,9 @@ def preprocess_image(img, label="unknown", normalize_brightness=False, logger=No
             img = cv2.convertScaleAbs(img, alpha=0.9, beta=-30)
             logger.info(f"Darkened {label} image (avg={brightness:.2f})")
         else:
-            logger.info(f"Skipped brightness normalization for {label} (avg={brightness:.2f})")
+            logger.info(
+                f"Skipped brightness normalization for {label} (avg={brightness:.2f})"
+            )
 
     # 2. Normalize data range if float image
     if img.max() <= 1.0:
@@ -136,4 +140,8 @@ def preprocess_image(img, label="unknown", normalize_brightness=False, logger=No
 
 
 def get_largest_face(faces):
-    return max(faces, key=lambda f: f["facial_area"]["w"] * f["facial_area"]["h"]) if faces else None
+    return (
+        max(faces, key=lambda f: f["facial_area"]["w"] * f["facial_area"]["h"])
+        if faces
+        else None
+    )

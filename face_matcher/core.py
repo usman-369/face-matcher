@@ -74,13 +74,19 @@ class FaceMatcher:
             self.selfie_stream = ensure_bytesio(selfie_file)
 
             # Read image bytes into OpenCV-compatible format (BGR)
-            self.id_card_np = cv2.imdecode(np.frombuffer(self.id_card_stream.read(), np.uint8), cv2.IMREAD_COLOR)
-            self.selfie_np = cv2.imdecode(np.frombuffer(self.selfie_stream.read(), np.uint8), cv2.IMREAD_COLOR)
+            self.id_card_np = cv2.imdecode(
+                np.frombuffer(self.id_card_stream.read(), np.uint8), cv2.IMREAD_COLOR
+            )
+            self.selfie_np = cv2.imdecode(
+                np.frombuffer(self.selfie_stream.read(), np.uint8), cv2.IMREAD_COLOR
+            )
         except Exception as e:
             self.logger.error(f"Failed to load input files: {e}")
             raise
 
-    def extract_face(self, image_np, detector, label="unknown", normalize_brightness=True):
+    def extract_face(
+        self, image_np, detector, label="unknown", normalize_brightness=True
+    ):
         """
         Extract the largest face from an image using a DeepFace detector.
 
@@ -103,17 +109,28 @@ class FaceMatcher:
             return self._selfie_face_dict
 
         image_np = preprocess_image(
-            image_np, label=label, normalize_brightness=normalize_brightness, logger=self.logger
+            image_np,
+            label=label,
+            normalize_brightness=normalize_brightness,
+            logger=self.logger,
         )
-        backends = [detector] if detector else [d for d in DETECTORS.values() if d is not None]
+        backends = (
+            [detector] if detector else [d for d in DETECTORS.values() if d is not None]
+        )
 
         for backend in backends:
             try:
-                faces = DeepFace.extract_faces(img_path=image_np, detector_backend=backend, enforce_detection=True)
+                faces = DeepFace.extract_faces(
+                    img_path=image_np, detector_backend=backend, enforce_detection=True
+                )
                 if faces:
                     face = get_largest_face(faces)
                     if face:
-                        face["face"] = preprocess_image(face["face"], label=f"{label} (extracted)", logger=self.logger)
+                        face["face"] = preprocess_image(
+                            face["face"],
+                            label=f"{label} (extracted)",
+                            logger=self.logger,
+                        )
 
                         # Cache face here
                         if label == "id_card":
@@ -129,12 +146,18 @@ class FaceMatcher:
                         )
                         return face
             except Exception as e:
-                self.logger.warning(f"Face detection failed in {label} with '{backend}': {e}")
+                self.logger.warning(
+                    f"Face detection failed in {label} with '{backend}': {e}"
+                )
 
         if detector is None:
-            self.logger.error(f"Error in face extraction: No face detected in {label} after all fallbacks.")
+            self.logger.error(
+                f"Error in face extraction: No face detected in {label} after all fallbacks."
+            )
         else:
-            self.logger.error(f"Error in face extraction: No face detected in {label} using detector '{detector}'.")
+            self.logger.error(
+                f"Error in face extraction: No face detected in {label} using detector '{detector}'."
+            )
         return None
 
     def match_faces(self, model_key="0", threshold_key="0", detector_key="0"):
@@ -154,12 +177,22 @@ class FaceMatcher:
             self.logger.info(START_MSG)
 
             # Fallback: if the key doesn't exist
-            model = get_with_fallback(MODELS, model_key, default_key="0", name="model key", logger=self.logger)
+            model = get_with_fallback(
+                MODELS, model_key, default_key="0", name="model key", logger=self.logger
+            )
             threshold_override = get_with_fallback(
-                THRESHOLD, threshold_key, default_key="0", name="threshold key", logger=self.logger
+                THRESHOLD,
+                threshold_key,
+                default_key="0",
+                name="threshold key",
+                logger=self.logger,
             )
             detector = get_with_fallback(
-                DETECTORS, detector_key, default_key="0", name="detector key", logger=self.logger
+                DETECTORS,
+                detector_key,
+                default_key="0",
+                name="detector key",
+                logger=self.logger,
             )
 
             if not model or not detector:
@@ -167,8 +200,12 @@ class FaceMatcher:
                 return False
 
             # Extract face from ID card and selfie
-            id_card_face_dict = self.extract_face(self.id_card_np, detector=detector, label="id_card")
-            selfie_face_dict = self.extract_face(self.selfie_np, detector=detector, label="selfie")
+            id_card_face_dict = self.extract_face(
+                self.id_card_np, detector=detector, label="id_card"
+            )
+            selfie_face_dict = self.extract_face(
+                self.selfie_np, detector=detector, label="selfie"
+            )
 
             if not id_card_face_dict or not selfie_face_dict:
                 self.logger.info(ERROR_END_MSG)
@@ -179,7 +216,9 @@ class FaceMatcher:
 
             # DEBUG: Save extracted faces to the Desktop if setting is enabled
             if getattr(settings, "DEBUG_FACE_MATCHER", False):
-                debug_save_extracted_faces(id_card_face_img, selfie_face_img, logger=self.logger)
+                debug_save_extracted_faces(
+                    id_card_face_img, selfie_face_img, logger=self.logger
+                )
 
             # Save both images to temp files
             with (
@@ -212,7 +251,9 @@ class FaceMatcher:
                 verified = distance < threshold_override
                 threshold = threshold_override
 
-            confidence = round((1 - distance) * 100, 2) if distance is not None else None
+            confidence = (
+                round((1 - distance) * 100, 2) if distance is not None else None
+            )
 
             self.logger.info(
                 f"Result: {'MATCH' if verified else 'NO MATCH'} | Confidence: {confidence}% "
