@@ -50,12 +50,13 @@ def get_with_fallback(mapping, key, default_key, name, logger=None):
 
     if key in mapping:
         return mapping[key]
-    elif default_key in mapping:
+
+    if default_key in mapping:
         logger.warning(f"Invalid {name} '{key}', falling back to '{default_key}'.")
         return mapping[default_key]
-    else:
-        logger.error(f"Invalid {name} '{key}' and fallback '{default_key}' not found.")
-        return None
+
+    logger.error(f"Invalid {name} '{key}' and fallback '{default_key}' not found.")
+    return "__INVALID__"
 
 
 def debug_save_extracted_faces(id_card_face_img, selfie_face_img, logger=None):
