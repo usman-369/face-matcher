@@ -177,6 +177,13 @@ class FaceMatcher:
             self.logger.info(START_MSG)
 
             # Fallback: if the key doesn't exist
+            detector = get_with_fallback(
+                DETECTORS,
+                detector_key,
+                default_key="0",
+                name="detector key",
+                logger=self.logger,
+            )
             model = get_with_fallback(
                 MODELS, model_key, default_key="0", name="model key", logger=self.logger
             )
@@ -187,15 +194,21 @@ class FaceMatcher:
                 name="threshold key",
                 logger=self.logger,
             )
-            detector = get_with_fallback(
-                DETECTORS,
-                detector_key,
-                default_key="0",
-                name="detector key",
-                logger=self.logger,
-            )
 
-            if not model or not detector:
+            invalids = {
+                "detector": detector,
+                "model": model,
+                "threshold": threshold_override,
+            }
+
+            bad_keys = [
+                f"'{key}'" for key, val in invalids.items() if val == "__INVALID__"
+            ]
+
+            if bad_keys:
+                self.logger.error(
+                    f"Invalid configuration for: {', '.join(bad_keys)}. Terminating FaceMatcher."
+                )
                 self.logger.info(ERROR_END_MSG)
                 return False
 
