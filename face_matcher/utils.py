@@ -5,7 +5,6 @@ from io import BytesIO
 from pathlib import Path
 from datetime import datetime
 
-
 __all__ = [
     "ensure_bytesio",
     "get_with_fallback",
@@ -14,8 +13,14 @@ __all__ = [
     "get_largest_face",
 ]
 
+# ================================
+# Logging Utilities
+# ================================
 
 def get_safe_logger(logger=None):
+    """
+    Return the given logger, or a fallback logger if None is provided.
+    """
     if logger:
         return logger
     null_logger = logging.getLogger("null_logger")
@@ -23,7 +28,20 @@ def get_safe_logger(logger=None):
     return null_logger
 
 
+# ================================
+# General Utilities
+# ================================
+
 def ensure_bytesio(file):
+    """
+    Ensure that the given file is a BytesIO object.
+
+    Args:
+        file (BytesIO or file-like): File to convert.
+
+    Returns:
+        BytesIO: File as a BytesIO object.
+    """
     if isinstance(file, BytesIO):
         file.seek(0)
         return file
@@ -59,35 +77,32 @@ def get_with_fallback(mapping, key, default_key, name, logger=None):
     return "__INVALID__"
 
 
-def debug_save_extracted_faces(id_card_face_img, selfie_face_img, logger=None):
+# ================================
+# Face Matching Debug Toggle
+# ================================
+
+def debug_face_matcher():
     """
-    Save the extracted face images to the Desktop for debugging.
+    Determine whether face matcher debugging is enabled.
 
-    This runs only if `settings.DEBUG_FACE_MATCHER` is set to True.
+    This function attempts to read the DEBUG_FACE_MATCHER flag from Django settings.
+    If Django is not available (e.g., in a standalone script), it falls back to True.
 
-    Args:
-        id_card_face_img (np.ndarray): The extracted face from ID card image
-        selfie_face_img (np.ndarray): The extracted face from selfie image
+    Returns:
+        bool: True if debugging is enabled, otherwise False.
     """
-    logger = get_safe_logger(logger)
-    logger.info("Saving extracted faces to the Desktop for debugging.")
+    try:
+        from django.conf import settings
 
-    # Get path to current user's Desktop (Linux/Mac/Windows compatible)
-    desktop_path = Path.home() / "Desktop"
-    base_folder = desktop_path / "extracted_faces"
-    id_card_folder = base_folder / "from_id_card"
-    selfie_folder = base_folder / "from_selfie"
-    id_card_folder.mkdir(parents=True, exist_ok=True)
-    selfie_folder.mkdir(parents=True, exist_ok=True)
+        return getattr(settings, "DEBUG_FACE_MATCHER", False)
+    except ImportError:
+        # Fallback for non-Django environments
+        return True
 
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-    id_card_path = id_card_folder / f"id_card_face_{timestamp}.jpg"
-    selfie_path = selfie_folder / f"selfie_face_{timestamp}.jpg"
-
-    cv2.imwrite(str(id_card_path), cv2.cvtColor(id_card_face_img, cv2.COLOR_RGB2BGR))
-    cv2.imwrite(str(selfie_path), cv2.cvtColor(selfie_face_img, cv2.COLOR_RGB2BGR))
-
+# ================================
+# Image Processing Utilities
+# ================================
 
 def preprocess_image(img, label="unknown", normalize_brightness=False, logger=None):
     """
@@ -141,8 +156,53 @@ def preprocess_image(img, label="unknown", normalize_brightness=False, logger=No
 
 
 def get_largest_face(faces):
+    """
+    Get the largest face from a list of detected faces based on bounding box area.
+
+    Args:
+        faces (list): A list of face dicts with "facial_area" containing "w" and "h".
+
+    Returns:
+        dict or None: The largest face dict, or None if no faces provided.
+    """
     return (
         max(faces, key=lambda f: f["facial_area"]["w"] * f["facial_area"]["h"])
         if faces
         else None
     )
+
+
+# ================================
+# Debug Helpers (Dev Only)
+# ================================
+
+def debug_save_extracted_faces(id_card_face_img, selfie_face_img, logger=None):
+    """
+    Save the extracted face images to the Desktop for debugging purposes.
+
+    This function runs only if debugging is enabled — either via
+    the `DEBUG_FACE_MATCHER` Django setting or when running in a standalone script
+    (where it's enabled by default using the `debug_face_matcher()` utility).
+
+    Args:
+        id_card_face_img (np.ndarray): The extracted face from ID card image
+        selfie_face_img (np.ndarray): The extracted face from selfie image
+    """
+    logger = get_safe_logger(logger)
+    logger.info("Saving extracted faces to the Desktop for debugging.")
+
+    # Get path to current user's Desktop (Linux/Mac/Windows compatible)
+    desktop_path = Path.home() / "Desktop"
+    base_folder = desktop_path / "extracted_faces"
+    id_card_folder = base_folder / "from_id_card"
+    selfie_folder = base_folder / "from_selfie"
+    id_card_folder.mkdir(parents=True, exist_ok=True)
+    selfie_folder.mkdir(parents=True, exist_ok=True)
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    id_card_path = id_card_folder / f"id_card_face_{timestamp}.jpg"
+    selfie_path = selfie_folder / f"selfie_face_{timestamp}.jpg"
+
+    cv2.imwrite(str(id_card_path), cv2.cvtColor(id_card_face_img, cv2.COLOR_RGB2BGR))
+    cv2.imwrite(str(selfie_path), cv2.cvtColor(selfie_face_img, cv2.COLOR_RGB2BGR))

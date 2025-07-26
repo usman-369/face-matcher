@@ -16,16 +16,16 @@ import time
 import tempfile
 import numpy as np
 from deepface import DeepFace
-from django.conf import settings
 
 from .constants import DETECTORS, MODELS, THRESHOLD
 from .logger import FaceMatcherLoggerAdapter, logger
 from .utils import (
     ensure_bytesio,
-    get_with_fallback,
-    debug_save_extracted_faces,
     preprocess_image,
     get_largest_face,
+    get_with_fallback,
+    debug_face_matcher,
+    debug_save_extracted_faces,
 )
 
 START_MSG = "======= FaceMatcher started. ======="
@@ -228,7 +228,7 @@ class FaceMatcher:
             selfie_face_img = selfie_face_dict["face"]
 
             # DEBUG: Save extracted faces to the Desktop if setting is enabled
-            if getattr(settings, "DEBUG_FACE_MATCHER", False):
+            if debug_face_matcher():
                 debug_save_extracted_faces(
                     id_card_face_img, selfie_face_img, logger=self.logger
                 )
