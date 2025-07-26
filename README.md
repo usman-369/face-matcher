@@ -46,9 +46,11 @@ If you use TensorFlow-based models (e.g., VGG-Face, Facenet), `tensorflow` will 
 │   ├── core.py
 │   ├── __init__.py
 │   ├── logger.py
+│   ├── test_face_matcher.py
 │   └── utils.py
 ├── LICENSE
-└── README.md
+├── README.md
+└── requirements.txt
 ```
 
 ---
