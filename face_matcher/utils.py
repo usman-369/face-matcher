@@ -17,6 +17,7 @@ __all__ = [
 # Logging Utilities
 # ================================
 
+
 def get_safe_logger(logger=None):
     """
     Return the given logger, or a fallback logger if None is provided.
@@ -31,6 +32,7 @@ def get_safe_logger(logger=None):
 # ================================
 # General Utilities
 # ================================
+
 
 def ensure_bytesio(file):
     """
@@ -81,6 +83,7 @@ def get_with_fallback(mapping, key, default_key, name, logger=None):
 # Face Matching Debug Toggle
 # ================================
 
+
 def debug_face_matcher():
     """
     Determine whether face matcher debugging is enabled.
@@ -103,6 +106,7 @@ def debug_face_matcher():
 # ================================
 # Image Processing Utilities
 # ================================
+
 
 def preprocess_image(img, label="unknown", normalize_brightness=False, logger=None):
     """
@@ -175,6 +179,7 @@ def get_largest_face(faces):
 # ================================
 # Debug Helpers (Dev Only)
 # ================================
+
 
 def debug_save_extracted_faces(id_card_face_img, selfie_face_img, logger=None):
     """
