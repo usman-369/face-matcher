@@ -50,18 +50,35 @@ pip install -r requirements.txt
 │   └── utils.py
 ├── LICENSE
 ├── README.md
-└── requirements.txt
+├── requirements.txt
+├── test_id_card.jpg
+└── test_selfie.jpg
 ```
 
 ---
 
 ## 🏎️🏁 Quick Start
 
+You can quickly test the **face_matcher** using the provided script with built-in sample images:
+
+```bash
+python -m face_matcher.test_face_matcher
+```
+
+You can also pass your own **ID card** and **selfie** image paths:
+
+```bash
+python -m face_matcher.test_face_matcher path/to/id_card.jpg path/to/selfie.jpg
+```
+
+Or use it directly in your **Python** or **Django project**:
+
 ```python
 from face_matcher import FaceMatcher
 
 matcher = FaceMatcher(id_file, selfie_file)
 match = matcher.match_faces()
+
 print("Matched!" if match else "No match")
 ```
 
