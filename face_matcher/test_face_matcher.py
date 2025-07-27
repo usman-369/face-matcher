@@ -1,10 +1,11 @@
 import os
+import sys
 import logging
 
 from .core import FaceMatcher
 from .logger import FaceMatcherLoggerAdapter
 
-# --- Setup logging ---
+# Setup logging
 LOG_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 LOG_FILE = os.path.join(LOG_DIR, "face_matcher.log")
 
@@ -20,21 +21,26 @@ logger = logging.getLogger("face_matcher")
 log = FaceMatcherLoggerAdapter(logger, extra={"user_email": "test@example.com"})
 
 
-# --- Test Function ---
-def test_face_matcher():
+# Test Function
+def test_face_matcher(id_card_path=None, selfie_path=None):
     log.info("Running FaceMatcher test...")
 
-    # Get image paths from one directory back
-    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-    id_card_path = os.path.join(base_dir, "test_id_card.jpg")
-    selfie_path = os.path.join(base_dir, "test_selfie.jpg")
+    # If no args provided, use defaults
+    if not id_card_path or not selfie_path:
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        id_card_path = os.path.join(base_dir, "test_id_card.jpg")
+        selfie_path = os.path.join(base_dir, "test_selfie.jpg")
+        log.info("No image paths provided. Using default test images.")
 
-    # Ensure test files exist
+    # Validate image paths
     if not os.path.isfile(id_card_path) or not os.path.isfile(selfie_path):
         log.error(
-            "Test images not found. Make sure 'test_id_card.jpg' and 'test_selfie.jpg' exist one directory up."
+            f"Image(s) not found.\n"
+            f"ID card path: {id_card_path}\n"
+            f"Selfie path: {selfie_path}\n"
+            f"Make sure the files exist."
         )
-        return
+        sys.exit(1)
 
     # Read the image files as bytes
     with open(id_card_path, "rb") as f1, open(selfie_path, "rb") as f2:
@@ -48,4 +54,11 @@ def test_face_matcher():
 
 
 if __name__ == "__main__":
-    test_face_matcher()
+    if len(sys.argv) == 3:
+        test_face_matcher(sys.argv[1], sys.argv[2])
+    elif len(sys.argv) == 1:
+        test_face_matcher()
+    else:
+        print("Usage:")
+        print("  python -m face_matcher.test_face_matcher <id_card_path> <selfie_path>")
+        print("  OR just run without arguments to use default test images.")
