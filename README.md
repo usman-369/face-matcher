@@ -26,14 +26,14 @@ The **face_matcher** is a lightweight Python package powered by [DeepFace](https
 
 ## 📦 Installation
 
-Install required packages:
+Install required packages from the `requirements.txt` file:
 
 ```bash
-pip install deepface opencv-python
+pip install -r requirements.txt
 ```
 
-**Note:** `numpy` will be installed automatically.  
-If you use TensorFlow-based models (e.g., VGG-Face, Facenet), `tensorflow` will also be installed by DeepFace as needed.
+**Note:** This will install all the necessary dependencies, including
+`deepface`, `opencv-python`, and any other libraries used in the project.
 
 ---
 
@@ -83,7 +83,7 @@ You can choose any of the following models:
 **To use a specific model:**
 
 ```python
-matcher = FaceMatcher(id_file, selfie_file, model_name="ArcFace")
+matcher = FaceMatcher(id_file, selfie_file, model_name="model_name")
 ```
 
 ---
