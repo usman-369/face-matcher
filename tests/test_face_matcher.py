@@ -2,14 +2,17 @@ import os
 import sys
 import logging
 
-from .core import FaceMatcher
-from .logger import FaceMatcherLoggerAdapter
+# Add the root folder to Python path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from face_matcher.core import FaceMatcher
+from face_matcher.logger import FaceMatcherLoggerAdapter
+
+# Set log file to be in the current directory (i.e. tests/)
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+LOG_FILE = os.path.join(CURRENT_DIR, "face_matcher.log")
 
 # Setup logging
-LOG_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-LOG_FILE = os.path.join(LOG_DIR, "face_matcher.log")
-
-# Ensure logger only gets configured once
 if not logging.getLogger("face_matcher").hasHandlers():
     logging.basicConfig(
         level=logging.INFO,
@@ -25,11 +28,10 @@ log = FaceMatcherLoggerAdapter(logger, extra={"user_email": "test@example.com"})
 def test_face_matcher(id_card_path=None, selfie_path=None):
     log.info("Running FaceMatcher test...")
 
-    # If no args provided, use defaults
+    # Use test images in current directory (tests/)
     if not id_card_path or not selfie_path:
-        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-        id_card_path = os.path.join(base_dir, "test_id_card.jpg")
-        selfie_path = os.path.join(base_dir, "test_selfie.jpg")
+        id_card_path = os.path.join(CURRENT_DIR, "test_id_card.jpg")
+        selfie_path = os.path.join(CURRENT_DIR, "test_selfie.jpg")
         log.info("No image paths provided. Using default test images.")
 
     # Validate image paths
@@ -60,5 +62,5 @@ if __name__ == "__main__":
         test_face_matcher()
     else:
         print("Usage:")
-        print("  python -m face_matcher.test_face_matcher <id_card_path> <selfie_path>")
+        print("  python test_face_matcher.py <id_card_path> <selfie_path>")
         print("  OR just run without arguments to use default test images.")
