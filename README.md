@@ -46,13 +46,14 @@ pip install -r requirements.txt
 │   ├── core.py
 │   ├── __init__.py
 │   ├── logger.py
-│   ├── test_face_matcher.py
 │   └── utils.py
 ├── LICENSE
 ├── README.md
 ├── requirements.txt
-├── test_id_card.jpg
-└── test_selfie.jpg
+└── tests
+    ├── test_face_matcher.py
+    ├── test_id_card.jpg
+    └── test_selfie.jpg
 ```
 
 ---
@@ -62,13 +63,13 @@ pip install -r requirements.txt
 You can quickly test the **face_matcher** using the provided script with built-in sample images:
 
 ```bash
-python -m face_matcher.test_face_matcher
+python tests/test_face_matcher.py
 ```
 
 You can also pass your own **ID card** and **selfie** image paths:
 
 ```bash
-python -m face_matcher.test_face_matcher path/to/id_card.jpg path/to/selfie.jpg
+python tests/test_face_matcher.py path/to/id_card.jpg path/to/selfie.jpg
 ```
 
 Or use it directly in your **Python** or **Django project**:
@@ -76,7 +77,7 @@ Or use it directly in your **Python** or **Django project**:
 ```python
 from face_matcher import FaceMatcher
 
-matcher = FaceMatcher(id_file, selfie_file)
+matcher = FaceMatcher(id_card_file, selfie_file)
 match = matcher.match_faces()
 
 print("Matched!" if match else "No match")
@@ -100,7 +101,7 @@ You can choose any of the following models:
 **To use a specific model:**
 
 ```python
-matcher = FaceMatcher(id_file, selfie_file, model_name="model_name")
+matcher = FaceMatcher(id_card_file, selfie_file, model_name="model_name")
 ```
 
 ---
