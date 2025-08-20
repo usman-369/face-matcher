@@ -112,9 +112,13 @@ This project is licensed under the **MIT License**.
 
 ---
 
-## 👤 Authors
+## 👤 Author
 
-- **Name:** Usman Ghani, Imran Nawaz
-- **GitHub:** [usman-369](https://github.com/usman-369), [codewithimran-786](https://github.com/codewithimran-786)
+- **Name:** Usman Ghani
+- **GitHub:** [usman-369](https://github.com/usman-369)
+- ![AI Assisted](https://img.shields.io/badge/Built_with-ChatGPT-8A2BE2?logo=openai&logoColor=white&style=flat-square)
 
-![AI Assisted](https://img.shields.io/badge/Built_with-ChatGPT-8A2BE2?logo=openai&logoColor=white&style=flat-square)
+## 👤 Contributor
+
+- **Name:** Imran Nawaz
+- **GitHub:** [codewithimran-786](https://github.com/codewithimran-786)
