@@ -122,3 +122,13 @@ This project is licensed under the **MIT License**.
 
 - **Name:** Imran Nawaz
 - **GitHub:** [codewithimran-786](https://github.com/codewithimran-786)
+
+---
+
+## 🧾 Version
+
+**Current Release:** `2.0.0`
+
+This is the only version available and the recommended one for all users.
+
+(Note: This package is **not published on PyPI** yet. You can get it directly from **GitHub**.)
