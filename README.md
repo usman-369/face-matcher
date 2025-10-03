@@ -43,7 +43,7 @@ pip install -r requirements.txt
 .
 ├── face_matcher
 │   ├── constants.py
-│   ├── core.py
+│   ├── face_matcher.py
 │   ├── __init__.py
 │   ├── logger.py
 │   └── utils.py

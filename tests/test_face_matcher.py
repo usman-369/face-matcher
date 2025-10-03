@@ -5,7 +5,7 @@ import logging
 # Add the root folder to Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from face_matcher.core import FaceMatcher
+from face_matcher.face_matcher import FaceMatcher
 from face_matcher.logger import FaceMatcherLoggerAdapter
 
 # Set log file to be in the current directory (i.e. tests/)
