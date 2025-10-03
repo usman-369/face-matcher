@@ -116,7 +116,7 @@ This project is licensed under the **MIT License**.
 
 - **Name:** Usman Ghani
 - **GitHub:** [usman-369](https://github.com/usman-369)
-- ![AI Assisted](https://img.shields.io/badge/Built_with-ChatGPT-8A2BE2?logo=openai&logoColor=white&style=flat-square)
+- ![Built with AI](https://img.shields.io/badge/Built%20with-AI-black?style=for-the-badge&logo=githubcopilot)
 
 ## 👤 Contributor
 
