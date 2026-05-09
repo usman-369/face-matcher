@@ -61,24 +61,23 @@ class FaceMatcher:
     """
 
     def __init__(self, id_card_file, selfie_file, user_email=None):
-        self.user_email = user_email
         self._id_card_face_dict = None
         self._selfie_face_dict = None
 
         # Custom logger adapter for FaceMatcher
-        self.logger = FaceMatcherLoggerAdapter(logger, {"user_email": self.user_email})
+        self.logger = FaceMatcherLoggerAdapter(logger, {"user_email": user_email})
 
         try:
             # Convert to BytesIO (if not already)
-            self.id_card_stream = ensure_bytesio(id_card_file)
-            self.selfie_stream = ensure_bytesio(selfie_file)
+            id_card_stream = ensure_bytesio(id_card_file)
+            selfie_stream = ensure_bytesio(selfie_file)
 
             # Read image bytes into OpenCV-compatible format (BGR)
             self.id_card_np = cv2.imdecode(
-                np.frombuffer(self.id_card_stream.read(), np.uint8), cv2.IMREAD_COLOR
+                np.frombuffer(id_card_stream.read(), np.uint8), cv2.IMREAD_COLOR
             )
             self.selfie_np = cv2.imdecode(
-                np.frombuffer(self.selfie_stream.read(), np.uint8), cv2.IMREAD_COLOR
+                np.frombuffer(selfie_stream.read(), np.uint8), cv2.IMREAD_COLOR
             )
         except Exception as e:
             self.logger.error(f"Failed to load input files: {e}")
